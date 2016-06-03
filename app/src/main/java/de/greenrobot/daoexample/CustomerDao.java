@@ -18,6 +18,7 @@ public class CustomerDao extends AbstractDao<Customer, Long> {
     //sdfsdf
     // test git change push cmd
     // test third
+    // FOUR
     /**
      * Properties of entity Customer.<br/>
      * Can be used for QueryBuilder and for referencing column names.
