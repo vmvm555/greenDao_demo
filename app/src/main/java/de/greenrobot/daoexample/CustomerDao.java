@@ -16,7 +16,7 @@ public class CustomerDao extends AbstractDao<Customer, Long> {
 
     public static final String TABLENAME = "CUSTOMER";
     //sdfsdf
-
+    // test git change push cmd
     /**
      * Properties of entity Customer.<br/>
      * Can be used for QueryBuilder and for referencing column names.
