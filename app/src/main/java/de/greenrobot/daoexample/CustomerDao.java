@@ -15,6 +15,7 @@ import de.greenrobot.dao.internal.DaoConfig;
 public class CustomerDao extends AbstractDao<Customer, Long> {
 
     public static final String TABLENAME = "CUSTOMER";
+    //sdfsdf
 
     /**
      * Properties of entity Customer.<br/>
