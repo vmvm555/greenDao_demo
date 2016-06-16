@@ -34,7 +34,14 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 
+import de.greenrobot.dao.async.AsyncOperation;
+import de.greenrobot.dao.async.AsyncOperationListener;
+import de.greenrobot.dao.async.AsyncSession;
 import de.greenrobot.daoexample.DaoMaster.DevOpenHelper;
 
 public class NoteActivity extends ListActivity {
@@ -61,6 +68,37 @@ public class NoteActivity extends ListActivity {
         daoSession = daoMaster.newSession();
         //daoSession.insert(new Note());
         noteDao = daoSession.getNoteDao();
+        /**
+         * 可以理解forCurrentThread方法是用来保险的,防止多线程使用不对应的Query,每个线程有一个Query,避免用错
+         * 使用forCurrentThread可以保证用的肯定是当前线程生产的Query
+         */
+
+        noteDao.queryRawCreateListArgs(null, null).forCurrentThread().list();
+        AsyncSession asyncSession = daoSession.startAsyncSession();
+        AsyncOperation operation = asyncSession.callInTx(null);
+
+        asyncSession.runInTx(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+        //如果有查询逻辑的业务需求的话,并且希望使用事务,应该使用callInTx方法,这个方法会有返回值的
+        //希望修改ui的话,使用setListenerMainThread这个回调
+        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+            @Override
+            public void onAsyncOperationCompleted(AsyncOperation operation) {
+
+            }
+        });
+        asyncSession.callInTx(new Callable<List<Note>>() {
+
+            @Override
+            public List<Note> call() throws Exception {
+                return  noteDao.queryRawCreateListArgs(null, null).forCurrentThread().list();
+            }
+        });
+        //noteDao.queryRaw();
 
 
 
@@ -210,6 +248,32 @@ public class NoteActivity extends ListActivity {
         noteDao.deleteByKey(id);
         Log.d("DaoExample", "Deleted note, ID: " + id);
         cursor.requery();
+    }
+
+
+    public static void main(String[] args) {
+       /* FacadeRoom room = new FacadeRoom();
+        room.CreateRoom();*/
+        final BlockingQueue<String> queue = new ArrayBlockingQueue<String>(100);
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                    queue.add("222");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+        try {
+            queue.take();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }

@@ -1,13 +1,14 @@
 package de.greenrobot.dao.async;
 
 import android.database.sqlite.SQLiteDatabase;
+
+import java.util.concurrent.Callable;
+
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.AbstractDaoSession;
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.async.AsyncOperation.OperationType;
 import de.greenrobot.dao.query.Query;
-
-import java.util.concurrent.Callable;
 
 /**
  * Asynchronous interface to entity operations. All operations will enqueued a @link {@link AsyncOperation} and return
@@ -305,6 +306,7 @@ public class AsyncSession {
     }
 
     private AsyncOperation enqueueDatabaseOperation(OperationType type, Object param, int flags) {
+        //创建异步操作对象并入列
         SQLiteDatabase database = daoSession.getDatabase();
         AsyncOperation operation = new AsyncOperation(type, null, database, param, flags | sessionFlags);
         executor.enqueue(operation);

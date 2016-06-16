@@ -16,11 +16,12 @@
 package de.greenrobot.dao.query;
 
 import android.database.Cursor;
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.DaoException;
 
 import java.util.Date;
 import java.util.List;
+
+import de.greenrobot.dao.AbstractDao;
+import de.greenrobot.dao.DaoException;
 
 /**
  * A repeatable query returning entities.
@@ -72,8 +73,10 @@ public class Query<T> extends AbstractQueryWithLimit<T> {
 
     /** Executes the query and returns the result as a list containing all entities loaded into memory. */
     public List<T> list() {
+        //如果当前线程和Query的线程是否一致,不一致抛异常
         checkThread();
         Cursor cursor = dao.getDatabase().rawQuery(sql, parameters);
+        //载入光标中所指定的所有数据
         return daoAccess.loadAllAndCloseCursor(cursor);
     }
 

@@ -15,6 +15,8 @@
  */
 package de.greenrobot.dao.query;
 
+import android.database.Cursor;
+
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +26,6 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.database.Cursor;
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.InternalQueryDaoAccess;
 
@@ -149,6 +150,9 @@ public class LazyList<E> implements List<E>, Closeable {
     }
 
     /** Loads the remaining entities (if any) that were not loaded before. Applies to cached lazy lists only. */
+    /**
+     * 在没有加载之前进行载入
+     */
     public void loadRemaining() {
         checkCached();
         int size = entities.size();
@@ -164,8 +168,14 @@ public class LazyList<E> implements List<E>, Closeable {
     }
 
     /** Like get but does not load the entity if it was not loaded before. */
+    /**
+     * 单纯只从缓存中获取
+     * @param location 实体数据在集合中的定位
+     * @return
+     */
     public E peak(int location) {
         if (entities != null) {
+            //获取缓存集合中的实体
             return entities.get(location);
         } else {
             return null;
@@ -236,6 +246,7 @@ public class LazyList<E> implements List<E>, Closeable {
                 try {
                     entity = entities.get(location);
                     if (entity == null) {
+                        //获取实体,set进集合
                         entity = loadEntity(location);
                         entities.set(location, entity);
                         // Ignore FindBugs: increment of volatile is fine here because we use a lock
@@ -250,6 +261,7 @@ public class LazyList<E> implements List<E>, Closeable {
             }
             return entity;
         } else {
+            //不需要缓存的情况,直接通过cursor实体
             lock.lock();
             try {
                 return loadEntity(location);
@@ -260,6 +272,7 @@ public class LazyList<E> implements List<E>, Closeable {
     }
 
     /** Lock must be locked when entering this method. */
+    //直接通过cursor 定位获取实体数据
     protected E loadEntity(int location) {
         boolean ok = cursor.moveToPosition(location);
         if(!ok) {
